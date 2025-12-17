@@ -1,0 +1,46 @@
+@page "/database-test"
+@using life_Book.Data.Services
+@inject DatabaseConnectionService DbConnection
+
+<h3>Database Connection Test</h3>
+
+<div class="card p-3">
+    <button class="btn btn-primary mb-2" @onclick="InitializeDatabase">Initialize Database</button>
+    <button class="btn btn-info mb-2" @onclick="TestConnection">Test Connection</button>
+    <button class="btn btn-secondary mb-2" @onclick="GetDatabasePath">Get Database Path</button>
+    
+    <hr />
+    
+  @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert alert-info">
+            <strong>Result:</strong> @message
+        </div>
+    }
+</div>
+
+@code {
+    private string message = string.Empty;
+
+    private async Task InitializeDatabase()
+    {
+        var success = await DbConnection.InitializeAsync();
+        message = success 
+       ? "? Database initialized successfully!" 
+            : "? Database initialization failed!";
+    }
+
+    private async Task TestConnection()
+    {
+        var connected = await DbConnection.TestConnectionAsync();
+    message = connected 
+            ? "? Database connection is working!" 
+          : "? Cannot connect to database!";
+    }
+
+    private void GetDatabasePath()
+ {
+        var path = DbConnection.GetDatabasePath();
+        message = $"?? Database Path: {path}";
+  }
+}

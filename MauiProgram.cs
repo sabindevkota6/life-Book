@@ -1,4 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using life_Book.Data.Utils;
+using life_Book.Data.Services;
 
 namespace life_Book
 {
@@ -15,6 +18,14 @@ namespace life_Book
                 });
 
             builder.Services.AddMauiBlazorWebView();
+
+            // Configure SQLite Database
+            var dbPath = Path.Combine(FileSystem.AppDataDirectory, "lifebook.db");
+            builder.Services.AddDbContext<DatabaseSchema>(options =>
+                options.UseSqlite($"Filename={dbPath}"));
+
+            // Register Database Connection Service
+            builder.Services.AddScoped<DatabaseConnectionService>();
 
 #if DEBUG
     		builder.Services.AddBlazorWebViewDeveloperTools();
