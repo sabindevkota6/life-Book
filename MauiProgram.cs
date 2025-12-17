@@ -26,6 +26,9 @@ namespace life_Book
 
             // Register Database Connection Service
             builder.Services.AddScoped<DatabaseConnectionService>();
+  
+            // Register User Service
+            builder.Services.AddScoped<UserService>();
 
 #if DEBUG
     		builder.Services.AddBlazorWebViewDeveloperTools();

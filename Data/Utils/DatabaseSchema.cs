@@ -21,6 +21,7 @@ public class DatabaseSchema : DbContext
    entity.HasKey(e => e.Id);
    entity.Property(e => e.Username).IsRequired();
          entity.Property(e => e.Email).IsRequired();
+         entity.Property(e => e.PasswordHash).IsRequired();
        entity.HasIndex(e => e.Email).IsUnique();
          entity.HasIndex(e => e.Username).IsUnique();
    });

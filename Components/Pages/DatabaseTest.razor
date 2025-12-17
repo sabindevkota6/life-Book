@@ -8,39 +8,72 @@
     <button class="btn btn-primary mb-2" @onclick="InitializeDatabase">Initialize Database</button>
     <button class="btn btn-info mb-2" @onclick="TestConnection">Test Connection</button>
     <button class="btn btn-secondary mb-2" @onclick="GetDatabasePath">Get Database Path</button>
+    <button class="btn btn-danger mb-2" @onclick="ResetDatabase">?? Reset Database (Delete & Recreate)</button>
     
     <hr />
     
   @if (!string.IsNullOrEmpty(message))
     {
-        <div class="alert alert-info">
+<div class="alert @alertClass">
             <strong>Result:</strong> @message
-        </div>
+  </div>
     }
 </div>
 
 @code {
     private string message = string.Empty;
+    private string alertClass = "alert-info";
 
     private async Task InitializeDatabase()
     {
         var success = await DbConnection.InitializeAsync();
         message = success 
        ? "? Database initialized successfully!" 
-            : "? Database initialization failed!";
+       : "? Database initialization failed!";
+      alertClass = success ? "alert-success" : "alert-danger";
     }
 
     private async Task TestConnection()
     {
         var connected = await DbConnection.TestConnectionAsync();
     message = connected 
-            ? "? Database connection is working!" 
+       ? "? Database connection is working!" 
           : "? Cannot connect to database!";
-    }
+        alertClass = connected ? "alert-success" : "alert-danger";
+  }
 
     private void GetDatabasePath()
  {
         var path = DbConnection.GetDatabasePath();
-        message = $"?? Database Path: {path}";
+  message = $"?? Database Path: {path}";
+      alertClass = "alert-info";
   }
+
+    private async Task ResetDatabase()
+    {
+  try
+ {
+        // Delete the old database
+         var deleted = await DbConnection.DeleteDatabaseAsync();
+        
+  // Create new database with updated schema
+       var created = await DbConnection.InitializeAsync();
+
+            if (deleted && created)
+            {
+         message = "? Database reset successfully! All tables recreated with correct schema including PasswordHash.";
+     alertClass = "alert-success";
+            }
+else
+        {
+ message = "?? Database reset completed but with warnings.";
+    alertClass = "alert-warning";
+            }
+    }
+        catch (Exception ex)
+    {
+            message = $"? Reset failed: {ex.Message}";
+            alertClass = "alert-danger";
+        }
+    }
 }

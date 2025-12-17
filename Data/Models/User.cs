@@ -18,6 +18,10 @@ public class User
     [EmailAddress]
     public string Email { get; set; } = string.Empty;
 
+    [Required]
+    [MaxLength(500)]
+    public string PasswordHash { get; set; } = string.Empty;
+
     [MaxLength(200)]
     public string? FullName { get; set; }
 

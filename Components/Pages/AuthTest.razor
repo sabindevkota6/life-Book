@@ -1,0 +1,138 @@
+@page "/auth-test"
+@using life_Book.Data.Services
+@inject UserService UserService
+@inject DatabaseConnectionService DbConnection
+
+<h3>User Authentication Test</h3>
+
+<div class="row">
+    <!-- Register Section -->
+    <div class="col-md-6">
+        <div class="card p-3 mb-3">
+          <h4>?? Register</h4>
+     <hr />
+            <div class="mb-2">
+      <input type="text" @bind="registerUsername" placeholder="Username" class="form-control" />
+ </div>
+            <div class="mb-2">
+          <input type="email" @bind="registerEmail" placeholder="Email" class="form-control" />
+     </div>
+            <div class="mb-2">
+        <input type="password" @bind="registerPassword" placeholder="Password" class="form-control" />
+            </div>
+            <div class="mb-2">
+         <input type="text" @bind="registerFullName" placeholder="Full Name (Optional)" class="form-control" />
+     </div>
+    <button class="btn btn-success" @onclick="Register">Register</button>
+    </div>
+    </div>
+
+    <!-- Login Section -->
+    <div class="col-md-6">
+        <div class="card p-3 mb-3">
+            <h4>?? Login</h4>
+            <hr />
+      <div class="mb-2">
+         <input type="text" @bind="loginUsernameOrEmail" placeholder="Username or Email" class="form-control" />
+   </div>
+ <div class="mb-2">
+    <input type="password" @bind="loginPassword" placeholder="Password" class="form-control" />
+ </div>
+         <button class="btn btn-primary" @onclick="Login">Login</button>
+        </div>
+    </div>
+</div>
+
+<!-- Result Message -->
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @alertClass">
+<strong>@message</strong>
+    </div>
+}
+
+<!-- Logged In User Info -->
+@if (currentUser != null)
+{
+    <div class="card p-3 mt-3">
+    <h4>? Logged In User</h4>
+  <hr />
+    <p><strong>ID:</strong> @currentUser.Id</p>
+        <p><strong>Username:</strong> @currentUser.Username</p>
+        <p><strong>Email:</strong> @currentUser.Email</p>
+        <p><strong>Full Name:</strong> @(currentUser.FullName ?? "N/A")</p>
+      <p><strong>Created:</strong> @currentUser.CreatedAt.ToString("MMM dd, yyyy")</p>
+        <p><strong>Last Login:</strong> @(currentUser.LastLoginAt?.ToString("MMM dd, yyyy hh:mm tt") ?? "N/A")</p>
+    </div>
+}
+
+@code {
+    // Register fields
+    private string registerUsername = string.Empty;
+    private string registerEmail = string.Empty;
+    private string registerPassword = string.Empty;
+    private string registerFullName = string.Empty;
+
+    // Login fields
+ private string loginUsernameOrEmail = string.Empty;
+    private string loginPassword = string.Empty;
+
+    // UI
+    private string message = string.Empty;
+ private string alertClass = "alert-info";
+    private Data.Models.User? currentUser;
+
+    protected override async Task OnInitializedAsync()
+    {
+     // Initialize database
+        await DbConnection.InitializeAsync();
+    }
+
+    private async Task Register()
+    {
+     var result = await UserService.RegisterAsync(
+    registerUsername, 
+            registerEmail, 
+    registerPassword, 
+            registerFullName
+        );
+
+        if (result.Success)
+   {
+     message = $"? {result.Message}";
+     alertClass = "alert-success";
+ 
+            // Clear form
+       registerUsername = string.Empty;
+    registerEmail = string.Empty;
+      registerPassword = string.Empty;
+            registerFullName = string.Empty;
+        }
+        else
+        {
+            message = $"? {result.Message}";
+         alertClass = "alert-danger";
+        }
+    }
+
+    private async Task Login()
+    {
+    var result = await UserService.LoginAsync(loginUsernameOrEmail, loginPassword);
+
+        if (result.Success)
+        {
+            message = $"? {result.Message}";
+   alertClass = "alert-success";
+            currentUser = result.User;
+            
+        // Clear password
+        loginPassword = string.Empty;
+        }
+        else
+        {
+       message = $"? {result.Message}";
+        alertClass = "alert-danger";
+        currentUser = null;
+        }
+    }
+}
